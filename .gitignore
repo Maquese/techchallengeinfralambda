@@ -46,3 +46,12 @@ terraform.rc
 # Lambda build artifacts
 .lambda_auth/
 *.zip
+
+# GitHub Actions self-hosted runner files
+actions-runner/
+_work/
+_diag/
+externals/
+bin/
+logs/
+*.log
