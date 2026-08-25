@@ -9,6 +9,14 @@ terraform {
       version = "2.7.1"
     }
   }
+
+  backend "s3" {
+    bucket       = "amz-lab-techchallenge-pt3"
+    key          = "techchallenge/auth/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
