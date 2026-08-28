@@ -10,7 +10,7 @@ os.environ.setdefault("JWT_SECRET", "test-secret")
 os.environ.setdefault("JWT_ISSUER", "test-issuer")
 os.environ.setdefault("JWT_AUDIENCE", "test-audience")
 
-from auth_handler import normalize_cpf, sign_jwt, decode_jwt
+from auth_handler import decode_jwt, is_active_status, normalize_cpf, sign_jwt
 
 
 class AuthHandlerTests(unittest.TestCase):
@@ -23,6 +23,10 @@ class AuthHandlerTests(unittest.TestCase):
     def test_jwt_round_trip(self):
         token = sign_jwt({"sub": "user", "iss": "test-issuer", "aud": "test-audience", "exp": 4102444800})
         self.assertEqual(decode_jwt(token)["sub"], "user")
+
+    def test_boolean_status(self):
+        self.assertTrue(is_active_status(True, "ativo"))
+        self.assertFalse(is_active_status(False, "ativo"))
 
 
 if __name__ == "__main__":

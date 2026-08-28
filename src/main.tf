@@ -111,13 +111,13 @@ resource "aws_lambda_function" "auth" {
 
   environment {
     variables = {
-      DB_HOST                = data.aws_db_instance.main.endpoint
+      DB_HOST                = data.aws_db_instance.main.address
       DB_PORT                = "3306"
       DB_NAME                = "Tests"
       DB_USER                = "root"
       DB_PASSWORD            = var.rds_password
-      CLIENT_TABLE           = "cliente"
-      CLIENT_CPF_COLUMN      = "documento"
+      CLIENT_TABLE           = "Cliente"
+      CLIENT_CPF_COLUMN      = "Documento"
       CLIENT_STATUS_COLUMN   = "Ativo"
       ACTIVE_CLIENT_STATUS   = "ativo"
       USER_TABLE             = "usuario"
