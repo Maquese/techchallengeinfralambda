@@ -2,6 +2,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 import time
@@ -9,6 +10,8 @@ from urllib.parse import parse_qs
 
 import pymysql
 import bcrypt
+
+logger = logging.getLogger(__name__)
 
 CPF_PATTERN = re.compile(r"^[0-9]{11}$")
 IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -51,6 +54,15 @@ def db_identifier(name):
     if not IDENTIFIER_PATTERN.fullmatch(name):
         raise ValueError("Invalid database identifier")
     return f"`{name}`"
+
+
+def is_active_status(value, configured_status):
+    if isinstance(value, (bool, int)):
+        return bool(value)
+    normalized_value = str(value or "").lower()
+    if normalized_value in {"true", "false"}:
+        return normalized_value == "true"
+    return normalized_value == configured_status.lower()
 
 
 def find_client(cpf):
@@ -120,10 +132,17 @@ def authenticate(event):
         try:
             user = find_user(username)
         except Exception:
+            logger.exception(
+                "Database error while finding user: host=%s port=%s database=%s user=%s",
+                os.environ.get("DB_HOST"),
+                os.environ.get("DB_PORT", "3306"),
+                os.environ.get("DB_NAME"),
+                os.environ.get("DB_USER"),
+            )
             return response(503, {"message": "Banco de dados indisponivel"})
         if not user or not bcrypt.checkpw(password.encode(), str(user.get("password_hash") or "").encode()):
             return response(401, {"message": "Usuario ou senha invalidos"})
-        if str(user.get("user_status") or "").lower() != os.environ.get("ACTIVE_USER_STATUS", "ativo").lower():
+        if not is_active_status(user.get("user_status"), os.environ.get("ACTIVE_USER_STATUS", "ativo")):
             return response(403, {"message": "Usuario inativo"})
         now = int(time.time())
         token = sign_jwt({
@@ -143,10 +162,17 @@ def authenticate(event):
     try:
         client = find_client(cpf)
     except Exception:
+        logger.exception(
+            "Database error while finding client: host=%s port=%s database=%s user=%s",
+            os.environ.get("DB_HOST"),
+            os.environ.get("DB_PORT", "3306"),
+            os.environ.get("DB_NAME"),
+            os.environ.get("DB_USER"),
+        )
         return response(503, {"message": "Banco de dados indisponivel"})
     if not client:
         return response(404, {"message": "Cliente nao encontrado"})
-    if str(client.get("client_status") or "").lower() != os.environ.get("ACTIVE_CLIENT_STATUS", "ativo").lower():
+    if not is_active_status(client.get("client_status"), os.environ.get("ACTIVE_CLIENT_STATUS", "ativo")):
         return response(403, {"message": "Cliente inativo"})
     now = int(time.time())
     expiration = int(os.environ.get("JWT_EXPIRATION_SECONDS", "3600"))
