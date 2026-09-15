@@ -71,7 +71,7 @@ Responsabilidades:
 - emitir JWT com `sub`, `role`, `iss`, `aud`, `iat` e `exp`.
 
 ### 2) Lambda authorizer
-Arquivo: `src/authorizer_handler.py`
+Arquivo: `src/authorizer_handler.py` 
 
 Responsabilidades:
 
