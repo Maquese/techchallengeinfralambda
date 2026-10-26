@@ -11,7 +11,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "amz-lab-techchallenge-pt3"
+    bucket       = "amz-lab-techchallenge-pt4"
     key          = "techchallenge/auth/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
@@ -30,17 +30,17 @@ variable "aws_region" {
 
 variable "vpc_id" {
   type    = string
-  default = "vpc-0b8ea6480aff3581d"
+  default = "vpc-0c04f9d3f5e86ae50"
 }
 
 variable "subnet_ids" {
   type    = list(string)
-  default = ["subnet-01799be41421baa8d", "subnet-0d850838bbd1a4e72", "subnet-0a6b760a3d564676b"]
+  default = ["subnet-02cd6e93afd15dae9","subnet-02fb07eb66ab63955"]
 }
 
 variable "security_group_id" {
   type    = string
-  default = "sg-0471a65dcdc5a7dd5"
+  default = "sg-0c106ea4e88e62e3b"
 }
 
 variable "rds_password" {
@@ -55,7 +55,7 @@ variable "lambda_role_name" {
 
 variable "rds_identifier" {
   type    = string
-  default = "techchallenge-mysql"
+  default = "clienteveiculo-mysql"
 }
 
 data "aws_db_instance" "main" {
@@ -113,7 +113,7 @@ resource "aws_lambda_function" "auth" {
     variables = {
       DB_HOST                = data.aws_db_instance.main.address
       DB_PORT                = "3306"
-      DB_NAME                = "Tests"
+      DB_NAME                = "ClienteVeiculo"
       DB_USER                = "root"
       DB_PASSWORD            = var.rds_password
       CLIENT_TABLE           = "Cliente"
