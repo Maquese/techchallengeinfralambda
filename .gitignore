@@ -55,3 +55,4 @@ externals/
 bin/
 logs/
 *.log
+*lambda
